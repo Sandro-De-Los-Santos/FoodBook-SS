@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FoodBook_SS.Domain.Entities.Configuration
 {
-    internal class Restaurante
+    public class Restaurante
     {
     }
 }

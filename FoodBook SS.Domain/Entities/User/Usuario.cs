@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FoodBook_SS.Domain.Entities.User
 {
-    internal class Usuario
+    public class Usuario
     {
     }
 }

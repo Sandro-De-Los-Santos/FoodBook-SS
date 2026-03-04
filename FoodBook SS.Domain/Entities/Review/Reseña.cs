@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FoodBook_SS.Domain.Entities.Review
 {
-    internal class Reseña
+    public class Reseña
     {
     }
 }

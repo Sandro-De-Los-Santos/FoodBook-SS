@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FoodBook_SS.Domain.Entities.Reservation
 {
-    internal class Reserva
+    public class Reserva
     {
     }
 }

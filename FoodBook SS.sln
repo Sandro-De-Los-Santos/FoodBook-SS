@@ -23,6 +23,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{A955694B-CB7
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodBook SS.Web", "FoodBook SS.Web\FoodBook SS.Web.csproj", "{11E1418E-6C7C-4DDC-BA64-26AE544D45FF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodBook SS.Persistence", "FoodBook SS.Persistence\FoodBook SS.Persistence.csproj", "{E2AF2ECF-AD9C-45C7-BBBF-C67C47D50E7C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,10 @@ Global
 		{11E1418E-6C7C-4DDC-BA64-26AE544D45FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11E1418E-6C7C-4DDC-BA64-26AE544D45FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{11E1418E-6C7C-4DDC-BA64-26AE544D45FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2AF2ECF-AD9C-45C7-BBBF-C67C47D50E7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2AF2ECF-AD9C-45C7-BBBF-C67C47D50E7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2AF2ECF-AD9C-45C7-BBBF-C67C47D50E7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2AF2ECF-AD9C-45C7-BBBF-C67C47D50E7C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,6 +65,7 @@ Global
 		{9972DAB5-A2D7-4182-86F0-EB462DAF70CC} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{991B3997-90E3-4524-8BE6-ACA88E7ED04C} = {77967569-5F1B-49DB-BCC3-0CA2CE46E33C}
 		{11E1418E-6C7C-4DDC-BA64-26AE544D45FF} = {A955694B-CB75-4638-92D0-F873DAD81CEB}
+		{E2AF2ECF-AD9C-45C7-BBBF-C67C47D50E7C} = {F86AE905-4EF6-4889-BAC5-2F934FE151B2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {605F4F97-EA1A-4A77-BFE2-C64050B574E6}

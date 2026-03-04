@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FoodBook_SS.Domain.Entities.Order
 {
-    internal class ItemOrden
+    public class ItemOrden
     {
     }
 }
