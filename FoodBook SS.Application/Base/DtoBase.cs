@@ -8,5 +8,6 @@ namespace FoodBook_SS.Application.Base
 {
     internal class DtoBase
     {
+        //jsksalslaskalskd
     }
 }
