@@ -1,5 +1,4 @@
-﻿using FoodBook_SS.API.DTOs;
-using FoodBook_SS.Application.Base;
+﻿using FoodBook_SS.Application.Base;
 using FoodBook_SS.Application.Dtos.User;
 using FoodBook_SS.Application.Interfaces;
 using FoodBook_SS.Domain.Base;

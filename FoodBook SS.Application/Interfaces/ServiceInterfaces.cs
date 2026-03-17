@@ -1,5 +1,4 @@
-﻿using FoodBook_SS.API.DTOs;
-using FoodBook_SS.Application.Base;
+﻿using FoodBook_SS.Application.Base;
 using FoodBook_SS.Application.Dtos.Menu;
 using FoodBook_SS.Application.Dtos.Order;
 using FoodBook_SS.Application.Dtos.Payment;
