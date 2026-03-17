@@ -7,4 +7,14 @@
     <RootNamespace>FoodBook_SS.Web</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Views\Menu\" />
+    <Folder Include="Views\wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FoodBook SS.Application\FoodBook SS.Application.csproj" />
+    <ProjectReference Include="..\FoodBook SS.IOC\FoodBook SS.IOC.csproj" />
+  </ItemGroup>
+
 </Project>

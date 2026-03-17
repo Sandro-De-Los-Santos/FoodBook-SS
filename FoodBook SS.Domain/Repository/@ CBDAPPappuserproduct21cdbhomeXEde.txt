@@ -1,1 +1,0 @@
-@ C:\BDAPP\app\user\product\21c\dbhomeXE\demo\schema\human_resources\hr_cre.sql

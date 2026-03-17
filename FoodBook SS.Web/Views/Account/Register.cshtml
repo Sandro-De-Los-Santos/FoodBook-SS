@@ -1,0 +1,54 @@
+﻿@model FoodBook_SS.Application.Dtos.User.SaveUserDto
+@{
+    ViewData["Title"] = "Crear cuenta";
+    Layout = "_Layout";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white text-center">
+                <h4>🍽️ FoodBook SS</h4>
+                <small>Crea tu cuenta</small>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/Account/Register">
+                    @Html.AntiForgeryToken()
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["Error"]</div>
+                    }
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" name="Nombre" class="form-control" />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Apellido</label>
+                            <input type="text" name="Apellido" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Correo electrónico</label>
+                        <input type="email" name="Email" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Teléfono <small class="text-muted">(opcional)</small></label>
+                        <input type="text" name="Telefono" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" name="Password" class="form-control" />
+                    </div>
+                    <input type="hidden" name="RolId" value="1" />
+                    <button type="submit" class="btn btn-dark w-100">Registrarse</button>
+                </form>
+            </div>
+            <div class="card-footer text-center text-muted">
+                ¿Ya tienes cuenta? <a href="/Account/Login">Inicia sesión</a>
+            </div>
+        </div>
+    </div>
+</div>

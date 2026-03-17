@@ -9,6 +9,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FoodBook SS.Application\FoodBook SS.Application.csproj" />
+    <ProjectReference Include="..\FoodBook SS.Domain\FoodBook SS.Domain.csproj" />
+    <ProjectReference Include="..\FoodBook SS.Infrastruture\FoodBook SS.Infrastruture.csproj" />
+    <ProjectReference Include="..\FoodBook SS.Persistence\FoodBook SS.Persistence.csproj" />
   </ItemGroup>
 
 </Project>
