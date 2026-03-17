@@ -7,4 +7,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Interfaces\INotificationService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FoodBook SS.Domain\FoodBook SS.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

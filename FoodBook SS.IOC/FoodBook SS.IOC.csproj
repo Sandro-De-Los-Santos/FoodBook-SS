@@ -7,4 +7,11 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FoodBook SS.Application\FoodBook SS.Application.csproj" />
+    <ProjectReference Include="..\FoodBook SS.Domain\FoodBook SS.Domain.csproj" />
+    <ProjectReference Include="..\FoodBook SS.Infrastructure\FoodBook SS.Infrastructure.csproj" />
+    <ProjectReference Include="..\FoodBook SS.Persistence\FoodBook SS.Persistence.csproj" />
+  </ItemGroup>
+
 </Project>

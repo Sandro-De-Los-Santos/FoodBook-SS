@@ -8,11 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.25" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\" />
+    <ProjectReference Include="..\FoodBook SS.Application\FoodBook SS.Application.csproj" />
+    <ProjectReference Include="..\FoodBook SS.IOC\FoodBook SS.IOC.csproj" />
   </ItemGroup>
 
 </Project>

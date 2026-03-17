@@ -1,0 +1,47 @@
+﻿@model FoodBook_SS.Application.Dtos.User.LoginDto
+@{
+    ViewData["Title"] = "Iniciar sesión";
+    Layout = "_Layout";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-5">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white text-center">
+                <h4>🍽️ FoodBook SS</h4>
+                <small>Inicia sesión en tu cuenta</small>
+            </div>
+            <div class="card-body">
+                <form asp-action="Login" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none" id="valSummary"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Correo electrónico</label>
+                        <input asp-for="Email" class="form-control" placeholder="correo@ejemplo.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label">Contraseña</label>
+                        <input asp-for="Password" type="password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+                    <button type="submit" class="btn btn-dark w-100">Ingresar</button>
+                </form>
+            </div>
+            <div class="card-footer text-center text-muted">
+                ¿No tienes cuenta?
+                <a asp-action="Register">Regístrate aquí</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+
+        if (document.querySelector('[data-valmsg-summary]')?.children.length > 0)
+            document.getElementById('valSummary')?.classList.remove('d-none');
+    </script>
+}

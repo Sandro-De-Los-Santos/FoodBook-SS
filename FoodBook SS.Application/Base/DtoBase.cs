@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FoodBook_SS.Application.Base
+﻿namespace FoodBook_SS.Application.Base
 {
-    internal class DtoBase
-    {
-    }
+    public abstract class DtoBase { public int Id { get; set; } }
 }

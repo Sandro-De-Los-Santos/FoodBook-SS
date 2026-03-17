@@ -7,4 +7,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Entities\Reservation\ReservaEstado.cs" />
+  </ItemGroup>
+
 </Project>

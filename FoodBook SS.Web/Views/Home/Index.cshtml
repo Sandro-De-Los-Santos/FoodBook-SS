@@ -1,8 +1,73 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<FoodBook_SS.Domain.Entities.Configuration.Restaurante>
+@{
+    ViewData["Title"] = "Restaurantes";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>🍽️ Restaurantes disponibles</h2>
 </div>
+
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-4">
+        <input name="q" value="@Context.Request.Query["q"]"
+               class="form-control" placeholder="Buscar por nombre..." />
+    </div>
+    <div class="col-md-3">
+        <input name="ciudad" value="@Context.Request.Query["ciudad"]"
+               class="form-control" placeholder="Ciudad" />
+    </div>
+    <div class="col-md-3">
+        <input name="tipo" value="@Context.Request.Query["tipo"]"
+               class="form-control" placeholder="Tipo de cocina" />
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Buscar</button>
+    </div>
+</form>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info">No se encontraron restaurantes con esos criterios.</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var r in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@r.Nombre</h5>
+                        <p class="text-muted small">@r.TipoCocina · @r.Ciudad</p>
+                        <p class="card-text">@r.Descripcion</p>
+                        <p>
+                            <span class="badge bg-warning text-dark">
+                                ⭐ @r.CalificacionProm.ToString("0.0") (@r.TotalResenas reseñas)
+                            </span>
+                            @if (r.RangoPrecio != null)
+                            {
+                                <span class="badge bg-secondary ms-1">@r.RangoPrecio</span>
+                            }
+                        </p>
+                    </div>
+                    <div class="card-footer d-flex gap-2">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <a asp-controller="Reserva" asp-action="Crear"
+                               asp-route-restauranteId="@r.Id"
+                               class="btn btn-sm btn-outline-primary">Reservar</a>
+                            <a asp-controller="Orden" asp-action="Crear"
+                               asp-route-restauranteId="@r.Id"
+                               class="btn btn-sm btn-outline-success">Ordenar</a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login"
+                               class="btn btn-sm btn-outline-secondary">Inicia sesión para reservar</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

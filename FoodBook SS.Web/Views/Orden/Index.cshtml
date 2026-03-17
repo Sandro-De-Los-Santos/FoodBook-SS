@@ -1,0 +1,70 @@
+﻿@model IEnumerable<FoodBook_SS.Domain.Entities.Order.Orden>
+@{
+    ViewData["Title"] = "Mis Órdenes";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>🧾 Mis Órdenes</h2>
+</div>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info">
+        No tienes órdenes aún. <a asp-controller="Home" asp-action="Index">Busca un restaurante</a>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Restaurante</th>
+                    <th>Subtotal</th>
+                    <th>ITBIS</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var o in Model)
+                {
+                    <tr>
+                        <td><code>#@o.Id</code></td>
+                        <td>@o.Restaurante?.Nombre</td>
+                        <td>RD$ @o.Subtotal.ToString("N2")</td>
+                        <td>RD$ @o.Impuesto.ToString("N2")</td>
+                        <td><strong>RD$ @o.Total.ToString("N2")</strong></td>
+                        <td>
+                            @{
+                                var badge = o.Estado switch
+                                {
+                                    "Confirmada" => "success",
+                                    "Pendiente" => "warning",
+                                    "EnProceso" => "info",
+                                    "Entregada" => "secondary",
+                                    "Cancelada" => "danger",
+                                    _ => "dark"
+                                };
+                            }
+                            <span class="badge bg-@badge">@o.Estado</span>
+                        </td>
+                        <td>@o.CreadoEn.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            @if (o.Estado == "Confirmada")
+                            {
+                                <a asp-controller="Pago" asp-action="Pagar"
+                                   asp-route-ordenId="@o.Id"
+                                   class="btn btn-sm btn-outline-primary">Pagar</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+

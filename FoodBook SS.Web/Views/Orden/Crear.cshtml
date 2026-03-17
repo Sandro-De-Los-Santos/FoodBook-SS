@@ -1,0 +1,75 @@
+﻿@model IEnumerable<FoodBook_SS.Domain.Entities.Configuration.ProductoMenu>
+@{
+    ViewData["Title"] = "Nueva Orden";
+    var restauranteId = (int)ViewBag.RestauranteId;
+}
+
+<h2 class="mb-4">🍽️ Selecciona tus productos</h2>
+
+<form asp-action="Crear" method="post" id="ordenForm">
+    @Html.AntiForgeryToken()
+    <input name="RestauranteId" type="hidden" value="@restauranteId" />
+
+    <div class="row row-cols-1 row-cols-md-3 g-3 mb-4" id="productosList">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="col-12">
+                <div class="alert alert-warning">Este restaurante no tiene productos disponibles.</div>
+            </div>
+        }
+        else
+        {
+            var idx = 0;
+            @foreach (var p in Model)
+            {
+                <div class="col">
+                    <div class="card h-100">
+                        @if (p.Imagen != null)
+                        {
+                            <img src="@p.Imagen" class="card-img-top" style="height:140px;object-fit:cover;" alt="@p.Nombre" />
+                        }
+                        <div class="card-body">
+                            <h6 class="card-title">@p.Nombre</h6>
+                            <p class="text-muted small">@p.Descripcion</p>
+                            <p class="fw-bold">RD$ @p.Precio.ToString("N2")</p>
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="hidden" name="Items[@idx].ProductoId" value="@p.Id" />
+                                <label class="form-label mb-0">Cantidad:</label>
+                                <input type="number" name="Items[@idx].Cantidad"
+                                       min="0" max="20" value="0"
+                                       class="form-control form-control-sm cantidad-input"
+                                       style="width:70px" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                idx++;
+            }
+        }
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Notas generales <small class="text-muted">(opcional)</small></label>
+        <textarea name="Notas" class="form-control" rows="2" placeholder="Sin cebolla, extra salsa..."></textarea>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-dark">Crear Orden</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+
+        document.getElementById('ordenForm').addEventListener('submit', function(e) {
+            const inputs = document.querySelectorAll('.cantidad-input');
+            let alguno = false;
+            inputs.forEach(inp => { if (parseInt(inp.value) > 0) alguno = true; });
+            if (!alguno) {
+                e.preventDefault();
+                alert('Debes seleccionar al menos un producto.');
+            }
+        });
+    </script>
+}
