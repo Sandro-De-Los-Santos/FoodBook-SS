@@ -2,35 +2,36 @@
 using FoodBook_SS.Application.Dtos.Menu;
 using FoodBook_SS.Application.Dtos.Order;
 using FoodBook_SS.Application.Dtos.Payment;
-using FoodBook_SS.Application.Dtos.Reservation;
 using FoodBook_SS.Application.Dtos.Restaurant;
+using FoodBook_SS.Application.Dtos.Reservation;
 using FoodBook_SS.Application.Dtos.Review;
 using FoodBook_SS.Application.Dtos.User;
 using FoodBook_SS.Domain.Base;
 
 namespace FoodBook_SS.Application.Interfaces
 {
-    // RF-01, RF-02
+
     public interface IUserService : IBaseService<UserDto, SaveUserDto, UpdateUserDto>
     {
         Task<OperationResult> LoginAsync(LoginDto dto);
         Task<OperationResult> RefreshTokenAsync(string refreshToken);
         Task<OperationResult> CambiarPasswordAsync(int usuarioId, string actual, string nueva);
-        // Alias usado por UserController
+
         Task<OperationResult> ChangePasswordAsync(int usuarioId, string actual, string nueva);
         Task<OperationResult> UpdateAsync(int id, UpdateUserDto dto, int actorId);
         Task<OperationResult> ActivarDesactivarAsync(int usuarioId, bool activo, int actorId);
     }
 
-    // RF-03
+
     public interface IRestaurantService : IBaseService<RestaurantDto, SaveRestaurantDto, UpdateRestaurantDto>
     {
         Task<OperationResult> GetByPropietarioAsync(int propietarioId);
         Task<OperationResult> SearchAsync(string? nombre, string? ciudad, string? tipoCocina);
         Task<OperationResult> BuscarAsync(string? ciudad, string? tipoCocina, string? termino);
+        Task<OperationResult> CreateAsync(SaveRestaurantDto dto, int propietarioId);
     }
 
-    // RF-06, RF-09
+
     public interface IReservationService : IBaseService<ReservationDto, SaveReservationDto, UpdateReservationDto>
     {
         Task<OperationResult> GetByClienteAsync(int clienteId);
@@ -47,7 +48,7 @@ namespace FoodBook_SS.Application.Interfaces
         Task<OperationResult> MarcarNoShowAsync(int reservaId, int actorId);
     }
 
-    // RF-07
+
     public interface IOrderService : IBaseService<OrderDto, SaveOrderDto, SaveOrderDto>
     {
         Task<OperationResult> GetByClienteAsync(int clienteId);
@@ -63,7 +64,7 @@ namespace FoodBook_SS.Application.Interfaces
         Task<OperationResult> GetProductosMasOrdenadosAsync(int restauranteId, DateOnly desde, DateOnly hasta);
     }
 
-    // RF-08, RN-04
+
     public interface IPaymentService : IBaseService<PaymentDto, SavePaymentDto, SavePaymentDto>
     {
         Task<OperationResult> GetByOrdenAsync(int ordenId);
@@ -73,7 +74,7 @@ namespace FoodBook_SS.Application.Interfaces
         Task<OperationResult> GetResumenAsync(int restauranteId, DateOnly desde, DateOnly hasta);
     }
 
-    // RF-04
+
     public interface IMenuService
     {
         Task<OperationResult> GetCategoriasByRestauranteAsync(int restauranteId);
@@ -86,7 +87,7 @@ namespace FoodBook_SS.Application.Interfaces
         Task<OperationResult> ToggleDisponibilidadAsync(int productoId, int actorId);
     }
 
-    // RF-05, RN-05
+
     public interface IReviewService : IBaseService<ReviewDto, SaveReviewDto, SaveReviewDto>
     {
         Task<OperationResult> GetByRestauranteAsync(int restauranteId);
@@ -95,7 +96,7 @@ namespace FoodBook_SS.Application.Interfaces
         Task<OperationResult> ModerarAsync(int resenaId, bool visible, int moderadorId);
     }
 
-    // RF-10
+
     public interface INotificationService
     {
         Task<OperationResult> EnviarConfirmacionReservaAsync(int clienteId, int reservaId);
@@ -104,13 +105,13 @@ namespace FoodBook_SS.Application.Interfaces
         Task<OperationResult> EnviarRecordatorioReservaAsync(int clienteId, int reservaId);
     }
 
-    // RF-10: abstracción de bajo nivel para adaptadores concretos
+
     public interface INotificationSender
     {
         Task EnviarAsync(string destinatario, string asunto, string mensaje);
     }
 
-    // RF-03, RF-11
+
     public interface IAuditService
     {
         Task RegistrarAsync(int? actorId, string accion, string entidad, string? entidadId,
