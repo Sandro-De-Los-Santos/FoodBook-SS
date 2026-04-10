@@ -1,4 +1,4 @@
-﻿using FoodBook_SS.Domain.Base;
+using FoodBook_SS.Domain.Base;
 using FoodBook_SS.Domain.Entities.Review;
 using FoodBook_SS.Domain.Repository;
 using FoodBook_SS.Persistence.Base;
@@ -51,6 +51,25 @@ namespace FoodBook_SS.Persistence.Repositories.Review
                     .SetProperty(r => r.ModificadoPor, moderadorId)
                     .SetProperty(r => r.ActualizadoEn, DateTime.UtcNow));
             return rows > 0 ? OperationResult.Ok() : OperationResult.Fail("Reseña no encontrada.");
+        }
+
+        public async Task<OperationResult> ResponderAsync(int resenaId, string respuesta)
+        {
+            var rows = await _context.Resenas
+                .Where(r => r.Id == resenaId)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(r => r.Respuesta, respuesta)
+                    .SetProperty(r => r.FechaRespuesta, DateTime.UtcNow)
+                    .SetProperty(r => r.ActualizadoEn, DateTime.UtcNow));
+            return rows > 0 ? OperationResult.Ok() : OperationResult.Fail("Reseña no encontrada.");
+        }
+
+        public override async Task<Resena?> GetEntityByIdAsync(int id)
+        {
+            return await _context.Resenas
+                .Include(r => r.Cliente)
+                .Include(r => r.Restaurante)
+                .FirstOrDefaultAsync(r => r.Id == id);
         }
     }
 }

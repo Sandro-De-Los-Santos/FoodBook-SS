@@ -1,4 +1,4 @@
-﻿using FoodBook_SS.Application.Base;
+using FoodBook_SS.Application.Base;
 using FoodBook_SS.Application.Dtos.Reservation;
 using FoodBook_SS.Application.Interfaces;
 using FoodBook_SS.Domain.Base;
@@ -16,24 +16,44 @@ namespace FoodBook_SS.Application.Services
         public ReservationService(IReservationRepository repo, IAuditService audit, INotificationService notify)
         { _repo = repo; _audit = audit; _notify = notify; }
 
-        public Task<OperationResult> GetAllAsync() => _repo.GetAllAsync(r => true);
+        public async Task<OperationResult> GetAllAsync() => MapListToDto(await _repo.GetAllAsync(r => true));
 
-        public Task<OperationResult> GetByClienteAsync(int clienteId) => _repo.GetByClienteIdAsync(clienteId);
-
-        
-        public Task<OperationResult> GetAllByClienteAsync(int clienteId) => _repo.GetByClienteIdAsync(clienteId);
-
-        public Task<OperationResult> GetByRestauranteAsync(int restauranteId, string? estado) =>
-            estado is null
-                ? _repo.GetByRestauranteAndFechaAsync(restauranteId, DateOnly.FromDateTime(DateTime.Today))
-                : _repo.GetByRestauranteAndEstadoAsync(restauranteId, estado);
+        public async Task<OperationResult> GetByClienteAsync(int clienteId) => MapListToDto(await _repo.GetByClienteIdAsync(clienteId));
 
         
-        public Task<OperationResult> GetAllByRestauranteAsync(int restauranteId, string? estado) =>
-            GetByRestauranteAsync(restauranteId, estado);
+        public async Task<OperationResult> GetAllByClienteAsync(int clienteId) => MapListToDto(await _repo.GetByClienteIdAsync(clienteId));
 
-        public Task<OperationResult> GetByCodigoAsync(string codigo) =>
-            _repo.GetByCodigoConfirmacionAsync(codigo);
+        public async Task<OperationResult> GetByRestauranteAsync(int restauranteId, string? estado)
+        {
+            var result = estado is null
+                ? await _repo.GetByRestauranteAndFechaAsync(restauranteId, DateOnly.FromDateTime(DateTime.Today))
+                : await _repo.GetByRestauranteAndEstadoAsync(restauranteId, estado);
+            return MapListToDto(result);
+        }
+
+        
+        public async Task<OperationResult> GetAllByRestauranteAsync(int restauranteId, string? estado)
+        {
+            OperationResult result;
+            if (estado is null)
+            {
+                // Retorna todas las reservas del restaurante sin filtro de fecha
+                result = await _repo.GetAllByRestauranteAsync(restauranteId);
+            }
+            else
+            {
+                result = await _repo.GetByRestauranteAndEstadoAsync(restauranteId, estado);
+            }
+            return MapListToDto(result);
+        }
+
+        public async Task<OperationResult> GetByCodigoAsync(string codigo)
+        {
+            var result = await _repo.GetByCodigoConfirmacionAsync(codigo);
+            if (result.Success && result.Data is Reserva r)
+                return OperationResult.Ok(MapToDto(r));
+            return result;
+        }
 
         public Task<OperationResult> GetMesasDisponiblesAsync(int rid, DateOnly fecha, TimeOnly hora, int personas) =>
             _repo.GetMesasDisponiblesAsync(rid, fecha, hora, personas);
@@ -52,10 +72,15 @@ namespace FoodBook_SS.Application.Services
             var disp = await _repo.GetMesasDisponiblesAsync(dto.RestauranteId, dto.FechaReserva, dto.HoraReserva, dto.NumeroPersonas);
             if (!disp.Success) return disp;
 
+            var mesas = (IEnumerable<FoodBook_SS.Domain.Entities.Configuration.Mesa>)disp.Data;
+            if (!mesas.Any(m => m.Id == dto.MesaId))
+                return OperationResult.Fail("La mesa seleccionada no está disponible o no tiene capacidad suficiente.");
+
             var reserva = new Reserva
             {
                 ClienteId = clienteId,
                 RestauranteId = dto.RestauranteId,
+                MesaId = dto.MesaId,
                 FechaReserva = dto.FechaReserva,
                 HoraReserva = dto.HoraReserva,
                 NumeroPersonas = dto.NumeroPersonas,
@@ -121,13 +146,22 @@ namespace FoodBook_SS.Application.Services
         private static ReservationDto MapToDto(Reserva r) => new()
         {
             Id = r.Id,
+            NombreCliente = r.Cliente?.Nombre ?? "Cliente Anónimo",
             NombreRestaurante = r.Restaurante?.Nombre ?? string.Empty,
             FechaReserva = r.FechaReserva,
             HoraReserva = r.HoraReserva,
             NumeroPersonas = r.NumeroPersonas,
             Estado = r.Estado,
             CodigoConfirmacion = r.CodigoConfirmacion,
-            NumeroMesa = r.Mesa?.NumeroMesa
+            NumeroMesa = r.Mesa?.NumeroMesa,
+            RestauranteId = r.RestauranteId
         };
+
+        private static OperationResult MapListToDto(OperationResult result)
+        {
+            if (result.Success && result.Data is IEnumerable<Reserva> lista)
+                return OperationResult.Ok(lista.Select(MapToDto).ToList());
+            return result;
+        }
     }
 }

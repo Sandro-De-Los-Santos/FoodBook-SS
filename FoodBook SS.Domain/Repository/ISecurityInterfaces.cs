@@ -1,4 +1,5 @@
 ﻿using FoodBook_SS.Domain.Entities.User;
+
 namespace FoodBook_SS.Domain.Repository
 {
     public interface IPasswordHasher

@@ -1,4 +1,4 @@
-﻿using FoodBook_SS.Domain.Base;
+using FoodBook_SS.Domain.Base;
 using FoodBook_SS.Domain.Entities.Order;
 using FoodBook_SS.Domain.Entities.Reservation;
 using FoodBook_SS.Domain.Repository;
@@ -39,9 +39,10 @@ namespace FoodBook_SS.Persistence.Repositories.Order
         public async Task<OperationResult> GetOrdenEntregadaParaResenaAsync(int clienteId, int ordenId)
         {
             var orden = await _context.Ordenes
+                .Include(o => o.Items)
                 .FirstOrDefaultAsync(o => o.ClienteId == clienteId &&
-                                          o.Id == ordenId &&
-                                          o.Estado == EstadoOrden.Entregada);
+                                           o.Id == ordenId &&
+                                           (o.Estado == EstadoOrden.Entregada || o.Estado == EstadoOrden.Completada));
             return OperationResult.Ok(data: orden);
         }
 
@@ -91,7 +92,7 @@ namespace FoodBook_SS.Persistence.Repositories.Order
                             DateOnly.FromDateTime(o.CreadoEn) >= desde &&
                             DateOnly.FromDateTime(o.CreadoEn) <= hasta)
                 .GroupBy(o => DateOnly.FromDateTime(o.CreadoEn))
-                .Select(g => new { Fecha = g.Key, TotalVentas = g.Sum(o => o.Total), Ordenes = g.Count() })
+                 .Select(g => new FoodBook_SS.Application.Dtos.Order.VentaFechaDto { Fecha = g.Key, TotalVentas = g.Sum(o => o.Total), Ordenes = g.Count() })
                 .OrderBy(v => v.Fecha)
                 .ToListAsync();
             return OperationResult.Ok(data: ventas);
@@ -105,7 +106,7 @@ namespace FoodBook_SS.Persistence.Repositories.Order
                             DateOnly.FromDateTime(i.CreadoEn) >= desde &&
                             DateOnly.FromDateTime(i.CreadoEn) <= hasta)
                 .GroupBy(i => new { i.ProductoId, i.NombreProducto })
-                .Select(g => new { g.Key.ProductoId, g.Key.NombreProducto, TotalVendido = g.Sum(i => i.Cantidad) })
+               .Select(g => new FoodBook_SS.Application.Dtos.Order.ProductoMasOrdenadoDto { ProductoId = g.Key.ProductoId, NombreProducto = g.Key.NombreProducto, TotalVendido = g.Sum(i => i.Cantidad) })
                 .OrderByDescending(p => p.TotalVendido)
                 .Take(top)
                 .ToListAsync();

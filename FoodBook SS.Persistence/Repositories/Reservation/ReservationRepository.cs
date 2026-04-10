@@ -1,4 +1,4 @@
-﻿using FoodBook_SS.Domain.Base;
+using FoodBook_SS.Domain.Base;
 using FoodBook_SS.Domain.Entities.Reservation;
 using FoodBook_SS.Domain.Repository;
 using FoodBook_SS.Persistence.Base;
@@ -13,6 +13,15 @@ namespace FoodBook_SS.Persistence.Repositories.Reservation
 
         public ReservationRepository(FoodBookDbContext context) : base(context) => _context = context;
 
+        public override async Task<Reserva?> GetEntityByIdAsync(int id)
+        {
+            return await _context.Reservas
+                .Include(r => r.Cliente)
+                .Include(r => r.Restaurante)
+                .Include(r => r.Mesa)
+                .FirstOrDefaultAsync(r => r.Id == id);
+        }
+
         public async Task<OperationResult> GetByClienteIdAsync(int clienteId)
         {
             var lista = await _context.Reservas
@@ -26,6 +35,8 @@ namespace FoodBook_SS.Persistence.Repositories.Reservation
         {
             var lista = await _context.Reservas
                 .Include(r => r.Cliente)
+                .Include(r => r.Restaurante)
+                .Include(r => r.Mesa)
                 .Where(r => r.RestauranteId == restauranteId && r.FechaReserva == fecha)
                 .ToListAsync();
             return OperationResult.Ok(data: lista);
@@ -35,7 +46,21 @@ namespace FoodBook_SS.Persistence.Repositories.Reservation
         {
             var lista = await _context.Reservas
                 .Include(r => r.Cliente)
+                .Include(r => r.Restaurante)
+                .Include(r => r.Mesa)
                 .Where(r => r.RestauranteId == restauranteId && r.Estado == estado)
+                .ToListAsync();
+            return OperationResult.Ok(data: lista);
+        }
+
+        public async Task<OperationResult> GetAllByRestauranteAsync(int restauranteId)
+        {
+            var lista = await _context.Reservas
+                .Include(r => r.Cliente)
+                .Include(r => r.Mesa)
+                .Where(r => r.RestauranteId == restauranteId)
+                .OrderByDescending(r => r.FechaReserva)
+                .ThenBy(r => r.HoraReserva)
                 .ToListAsync();
             return OperationResult.Ok(data: lista);
         }
@@ -111,6 +136,22 @@ namespace FoodBook_SS.Persistence.Repositories.Reservation
             reserva.Estado = EstadoReserva.Cancelada;
             reserva.ModificadoPor = actorId;
             reserva.ActualizadoEn = DateTime.UtcNow;
+
+            // Cancelar también todas las órdenes activas vinculadas a esta reserva
+            var ordenesActivas = await _context.Ordenes
+                .Where(o => o.ReservaId == reservaId &&
+                            o.Estado != EstadoOrden.Cancelada &&
+                            o.Estado != EstadoOrden.Entregada &&
+                            o.Estado != EstadoOrden.Completada)
+                .ToListAsync();
+
+            foreach (var orden in ordenesActivas)
+            {
+                orden.Estado = EstadoOrden.Cancelada;
+                orden.ModificadoPor = actorId;
+                orden.ActualizadoEn = DateTime.UtcNow;
+            }
+
             await _context.SaveChangesAsync();
             return OperationResult.Ok("Reserva cancelada.");
         }
@@ -120,6 +161,9 @@ namespace FoodBook_SS.Persistence.Repositories.Reservation
         {
             var reserva = await _context.Reservas.FindAsync(reservaId);
             if (reserva is null) return OperationResult.Fail("Reserva no encontrada.");
+
+            if (reserva.Estado != EstadoReserva.Confirmada)
+                return OperationResult.Fail("La reserva debe estar confirmada antes de marcarla como completada.");
 
             reserva.Estado = EstadoReserva.Completada;
             reserva.ModificadoPor = actorId;
@@ -142,8 +186,16 @@ namespace FoodBook_SS.Persistence.Repositories.Reservation
             return OperationResult.Ok("Reserva marcada como Completada.");
         }
 
-        public Task<OperationResult> MarcarNoShowAsync(int reservaId, int actorId) =>
-            CambiarEstadoAsync(reservaId, EstadoReserva.NoShow, actorId);
+        public async Task<OperationResult> MarcarNoShowAsync(int reservaId, int actorId)
+        {
+            var reserva = await _context.Reservas.FindAsync(reservaId);
+            if (reserva is null) return OperationResult.Fail("Reserva no encontrada.");
+
+            if (reserva.Estado != EstadoReserva.Confirmada)
+                return OperationResult.Fail("Solo se puede marcar No Show a una reserva Confirmada.");
+
+            return await CambiarEstadoAsync(reservaId, EstadoReserva.NoShow, actorId);
+        }
 
         public async Task<OperationResult> GetReservasParaRecordatorioAsync(DateTime desde, DateTime hasta)
         {

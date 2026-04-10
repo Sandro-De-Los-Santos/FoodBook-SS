@@ -1,4 +1,4 @@
-﻿using FoodBook_SS.Domain.Base;
+using FoodBook_SS.Domain.Base;
 using FoodBook_SS.Domain.Entities.Configuration;
 using FoodBook_SS.Domain.Repository;
 using FoodBook_SS.Persistence.Base;
@@ -20,6 +20,7 @@ namespace FoodBook_SS.Persistence.Repositories.Restaurant
         public async Task<OperationResult> GetByPropietarioIdAsync(int propietarioId)
         {
             var lista = await _context.Restaurantes
+                .Include(r => r.Mesas)
                 .Where(r => r.PropietarioId == propietarioId)
                 .OrderBy(r => r.Nombre)
                 .ToListAsync();
@@ -53,6 +54,21 @@ namespace FoodBook_SS.Persistence.Repositories.Restaurant
         {
             var lista = await _context.Restaurantes.Where(r => r.Activo).OrderBy(r => r.Nombre).ToListAsync();
             return OperationResult.Ok(data: lista);
+        }
+
+        public async Task<OperationResult> SaveMesaAsync(Mesa mesa)
+        {
+            var existe = await _context.Mesas
+                .AnyAsync(m => m.RestauranteId == mesa.RestauranteId &&
+                               m.NumeroMesa    == mesa.NumeroMesa);
+
+            if (existe)
+                return OperationResult.Fail(
+                    $"Ya existe una mesa con el número '{mesa.NumeroMesa}' en este restaurante.");
+
+            _context.Mesas.Add(mesa);
+            await _context.SaveChangesAsync();
+            return OperationResult.Ok(mesa.Id, "Mesa creada exitosamente.");
         }
 
         public async Task<OperationResult> GetMesasByRestauranteAsync(int restauranteId, bool soloActivas = true)

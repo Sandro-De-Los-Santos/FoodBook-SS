@@ -1,4 +1,4 @@
-﻿using FoodBook_SS.Application.Base;
+using FoodBook_SS.Application.Base;
 using FoodBook_SS.Application.Dtos.Restaurant;
 using FoodBook_SS.Application.Interfaces;
 using FoodBook_SS.Domain.Base;
@@ -13,18 +13,18 @@ namespace FoodBook_SS.Application.Services
 
         public RestaurantService(IRestaurantRepository repo) => _repo = repo;
 
-        public Task<OperationResult> GetAllAsync() => _repo.GetAllAsync(r => r.Activo);
-        public Task<OperationResult> GetByPropietarioAsync(int id) => _repo.GetByPropietarioAsync(id);
-        public Task<OperationResult> SearchAsync(string? nombre, string? ciudad, string? tipoCocina) =>
-            _repo.SearchAsync(nombre, ciudad, tipoCocina);
+        public async Task<OperationResult> GetAllAsync() => MapListToDto(await _repo.GetAllAsync(r => true));
+        public async Task<OperationResult> GetByPropietarioAsync(int id) => MapListToDto(await _repo.GetByPropietarioAsync(id));
+        public async Task<OperationResult> SearchAsync(string? nombre, string? ciudad, string? tipoCocina) =>
+            MapListToDto(await _repo.SearchAsync(nombre, ciudad, tipoCocina));
 
-        public Task<OperationResult> BuscarAsync(string? ciudad, string? tipoCocina, string? termino) =>
-            _repo.SearchAsync(termino, ciudad, tipoCocina);
+        public async Task<OperationResult> BuscarAsync(string? ciudad, string? tipoCocina, string? termino) =>
+            MapListToDto(await _repo.SearchAsync(termino, ciudad, tipoCocina));
 
         public async Task<OperationResult> GetByIdAsync(int id)
         {
             var r = await _repo.GetEntityByIdAsync(id);
-            return r is null ? OperationResult.Fail("Restaurante no encontrado.") : OperationResult.Ok(r);
+            return r is null ? OperationResult.Fail("Restaurante no encontrado.") : OperationResult.Ok(MapToDto(r));
         }
 
         public async Task<OperationResult> SaveAsync(SaveRestaurantDto dto)
@@ -66,6 +66,60 @@ namespace FoodBook_SS.Application.Services
             if (dto.Telefono is not null) r.Telefono = dto.Telefono;
             if (dto.RangoPrecio is not null) r.RangoPrecio = dto.RangoPrecio;
             return await _repo.UpdateEntityAsync(r);
+        }
+
+        public async Task<OperationResult> AgregarMesaAsync(SaveMesaDto dto)
+        {
+            var mesa = new Mesa
+            {
+                RestauranteId = dto.RestauranteId,
+                NumeroMesa    = dto.NumeroMesa,
+                Capacidad     = dto.Capacidad,
+                Ubicacion     = dto.Ubicacion,
+                Activa        = true
+            };
+            return await _repo.SaveMesaAsync(mesa);
+        }
+
+        public async Task<OperationResult> ToggleEstadoAsync(int restauranteId, bool activo, int actorId)
+        {
+            var r = await _repo.GetEntityByIdAsync(restauranteId);
+            if (r is null) return OperationResult.Fail("Restaurante no encontrado.");
+            
+            r.Activo = activo;
+            r.ActualizadoEn = DateTime.UtcNow;
+            r.ModificadoPor = actorId;
+            
+            return await _repo.UpdateEntityAsync(r);
+        }
+
+        private static RestaurantDto MapToDto(Restaurante r) => new()
+        {
+            Id = r.Id,
+            PropietarioId = r.PropietarioId,
+            Nombre = r.Nombre,
+            TipoCocina = r.TipoCocina,
+            Direccion = r.Direccion,
+            Ciudad = r.Ciudad,
+            RangoPrecio = r.RangoPrecio,
+            CalificacionProm = r.CalificacionProm,
+            TotalResenas = r.TotalResenas,
+            Activo = r.Activo,
+            Mesas = r.Mesas?.Select(m => new MesaDto
+            {
+                Id = m.Id,
+                NumeroMesa = m.NumeroMesa,
+                Capacidad = m.Capacidad,
+                Ubicacion = m.Ubicacion,
+                Disponible = true
+            }).ToList() ?? new()
+        };
+
+        private static OperationResult MapListToDto(OperationResult result)
+        {
+            if (result.Success && result.Data is IEnumerable<Restaurante> lista)
+                return OperationResult.Ok(lista.Select(MapToDto).ToList());
+            return result;
         }
     }
 }

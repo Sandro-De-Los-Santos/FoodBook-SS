@@ -1,4 +1,4 @@
-﻿using FoodBook_SS.Domain.Entities.Configuration;
+using FoodBook_SS.Domain.Entities.Configuration;
 using FoodBook_SS.Domain.Entities.Order;
 using FoodBook_SS.Domain.Entities.Payment;
 using FoodBook_SS.Domain.Entities.Reservation;
@@ -100,6 +100,10 @@ namespace FoodBook_SS.Persistence.Context
 
             modelBuilder.Entity<Resena>().HasKey(e => e.Id);
             modelBuilder.Entity<Resena>().Property(e => e.Id).HasColumnName("ResenaId");
+            modelBuilder.Entity<Resena>().Ignore(e => e.Respuesta);
+            modelBuilder.Entity<Resena>().Ignore(e => e.FechaRespuesta);
+            modelBuilder.Entity<Resena>().Ignore(e => e.ModeradaPor);
+            modelBuilder.Entity<Resena>().Ignore(e => e.FechaModeracion);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using FoodBook_SS.Application.Base;
+using FoodBook_SS.Application.Base;
 using FoodBook_SS.Application.Dtos.Order;
 using FoodBook_SS.Application.Interfaces;
 using FoodBook_SS.Domain.Base;
@@ -17,17 +17,17 @@ namespace FoodBook_SS.Application.Services
         public OrderService(IOrderRepository repo, IMenuRepository menu, IAuditService audit)
         { _repo = repo; _menu = menu; _audit = audit; }
 
-        public Task<OperationResult> GetAllAsync() => _repo.GetAllAsync(o => true);
-        public Task<OperationResult> GetByReservaAsync(int id) => _repo.GetByReservaIdAsync(id);
-        public Task<OperationResult> GetByClienteAsync(int clienteId) => _repo.GetByClienteIdAsync(clienteId);
+        public async Task<OperationResult> GetAllAsync() => MapListToDto(await _repo.GetAllAsync(o => true));
+        public async Task<OperationResult> GetByReservaAsync(int id) => MapListToDto(await _repo.GetByReservaIdAsync(id));
+        public async Task<OperationResult> GetByClienteAsync(int clienteId) => MapListToDto(await _repo.GetByClienteIdAsync(clienteId));
 
-        public Task<OperationResult> GetByRestauranteAsync(int restauranteId, string? estado) =>
-            _repo.GetByRestauranteAndEstadoAsync(restauranteId, estado ?? EstadoOrden.Pendiente);
+        public async Task<OperationResult> GetByRestauranteAsync(int restauranteId, string? estado) =>
+            MapListToDto(await _repo.GetByRestauranteAndEstadoAsync(restauranteId, estado ?? EstadoOrden.Pendiente));
 
         public async Task<OperationResult> GetByIdAsync(int id)
         {
             var o = await _repo.GetEntityByIdAsync(id);
-            return o is null ? OperationResult.Fail("Orden no encontrada.") : OperationResult.Ok(o);
+            return o is null ? OperationResult.Fail("Orden no encontrada.") : OperationResult.Ok(MapToDto(o));
         }
 
         public async Task<OperationResult> SaveAsync(SaveOrderDto dto) => await CreateAsync(dto, 0);
@@ -44,7 +44,7 @@ namespace FoodBook_SS.Application.Services
             };
             var r = await _repo.SaveEntityAsync(orden);
             if (!r.Success) return r;
-            foreach (var item in dto.Items)
+            foreach (var item in dto.Items.Where(i => i.Cantidad > 0))
             {
                 var ar = await AgregarItemAsync(orden.Id, item);
                 if (!ar.Success) return ar;
@@ -104,5 +104,32 @@ namespace FoodBook_SS.Application.Services
 
         public Task<OperationResult> GetProductosMasOrdenadosAsync(int restauranteId, DateOnly desde, DateOnly hasta) =>
             _repo.GetProductosMasOrdenadosAsync(restauranteId, desde, hasta);
+
+        private static OrderDto MapToDto(Orden o) => new()
+        {
+            Id = o.Id,
+            ReservaId = o.ReservaId,
+            Estado = o.Estado,
+            Subtotal = o.Subtotal,
+            Impuesto = o.Impuesto,
+            Total = o.Total,
+            FechaOrden = o.CreadoEn,
+            Notas = o.Notas,
+            Items = o.Items?.Select(i => new OrderItemDto
+            {
+                ProductoId = i.ProductoId,
+                NombreProducto = i.NombreProducto,
+                PrecioUnitario = i.PrecioUnitario,
+                Cantidad = i.Cantidad,
+                Subtotal = i.PrecioUnitario * i.Cantidad
+            }).ToList() ?? new()
+        };
+
+        private static OperationResult MapListToDto(OperationResult result)
+        {
+            if (result.Success && result.Data is IEnumerable<Orden> lista)
+                return OperationResult.Ok(lista.Select(MapToDto).ToList());
+            return result;
+        }
     }
 }

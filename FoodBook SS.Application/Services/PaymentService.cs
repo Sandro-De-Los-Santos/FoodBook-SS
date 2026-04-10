@@ -35,7 +35,7 @@ namespace FoodBook_SS.Application.Services
         public Task<OperationResult> UpdateAsync(int id, SavePaymentDto dto) =>
             Task.FromResult(OperationResult.Fail("Los pagos no se actualizan directamente."));
 
-        // RN-04
+        // RN-04 :)
         public async Task<OperationResult> ProcesarPagoAsync(SavePaymentDto dto, int clienteId)
         {
             var gwResult = await _gateway.ProcesarPagoAsync(Guid.NewGuid().ToString("N"), dto.Monto, dto.MetodoPago);
